@@ -91,20 +91,20 @@ static const QString DARK_STYLE =
 static QStringDecoder *cp437 = nullptr;
 
 // Subclass QMessageBox for our StdWarningDialog to make any Details Resizable
+// Unfortunately, under Qt6 this will not work no matter what you try,  if you
+// manually resize it Qt will just force it back after any change.
+// Keep the subclass in case we want to create our own QMessageBox at ssome point
+// but forget about the resize
 class SigilMessageBox: public QMessageBox
 {
     public:
         SigilMessageBox(QWidget* parent) : QMessageBox(parent) 
         {
-            setSizeGripEnabled(true);
         }
     private:
+
         virtual void resizeEvent(QResizeEvent * e) {
             QMessageBox::resizeEvent(e);
-            setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-            if (QWidget *textEdit = findChild<QTextEdit *>()) {
-                textEdit->setMaximumHeight(QWIDGETSIZE_MAX);
-            }
         }
 };
 
@@ -143,15 +143,6 @@ bool Utility::WindowsShouldUseDarkMode()
 {
     return IsWindowsSysDarkMode();
     // No more forcing of light/dark on Windows: use Windows settings.
-#if 0
-    QString override(GetEnvironmentVar("SIGIL_USES_DARK_MODE"));
-    if (override.isEmpty()) {
-        //Env var unset - use system registry setting.
-        return IsWindowsSysDarkMode();
-    }
-    // Otherwise use the env var: anything other than "0" is true.
-    return (override == "0" ? false : true);
-#endif
 }
 
 #if !defined(Q_OS_WIN32) && !defined(Q_OS_MAC)
@@ -716,12 +707,10 @@ void Utility::DisplayExceptionErrorDialog(const QString &error_info)
 }
 
 
-void Utility::DisplayStdErrorDialog(const QString &error_message, const QString &detailed_text)
+void Utility::DisplayStdErrorDialog(const QString &error_message, const QString &detailed_text, QWidget* parent)
 {
-    QWidget * parent = QApplication::activeWindow();
     QMessageBox message_box(parent);
-    message_box.setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
-    message_box.setModal(true);
+    message_box.setWindowModality(Qt::ApplicationModal);
     message_box.setIcon(QMessageBox::Critical);
     message_box.setWindowTitle("Sigil");
     message_box.setText(error_message);
@@ -732,18 +721,13 @@ void Utility::DisplayStdErrorDialog(const QString &error_message, const QString 
 
     message_box.setStandardButtons(QMessageBox::Close);
     message_box.exec();
-#ifdef Q_OS_MAC    
-    if (parent) parent->activateWindow();
-#endif
 }
 
 
-void Utility::DisplayStdWarningDialog(const QString &warning_message, const QString &detailed_text)
+void Utility::DisplayStdWarningDialog(const QString &warning_message, const QString &detailed_text, QWidget * parent)
 {
-    QWidget * parent = QApplication::activeWindow();
     SigilMessageBox message_box(parent);
-    message_box.setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
-    message_box.setModal(true);
+    message_box.setWindowModality(Qt::ApplicationModal);
     message_box.setIcon(QMessageBox::Warning);
     message_box.setWindowTitle("Sigil");
     message_box.setText(warning_message);
@@ -754,9 +738,6 @@ void Utility::DisplayStdWarningDialog(const QString &warning_message, const QStr
     }
     message_box.setStandardButtons(QMessageBox::Ok);
     message_box.exec();
-#ifdef Q_OS_MAC    
-    if (parent) parent->activateWindow();
-#endif    
 }
 
 // Returns a value for the environment variable name passed;

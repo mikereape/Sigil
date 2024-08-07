@@ -149,9 +149,10 @@ QString CodeViewEditor::cursor_selected_text(const QTextCursor& c) const
     QChar *e = uc + txt.size();
     for (; uc != e; ++uc) {
         switch (uc->unicode()) {
+            // pass QChar::ParagraphSeparator through unchanged for ApplyList to
+            // work properly and not create improperly nested code
             case 0xfdd0: // QTextBeginningOfFrame
             case 0xfdd1: // QTextEndOfFrame
-            case QChar::ParagraphSeparator:
             case QChar::LineSeparator:
                 *uc = QLatin1Char('\n');
                 break;
