@@ -472,6 +472,10 @@ void MetaEditor::selectElement()
             QString content = "urn:AMAZON:" + tr("[Amazon ASIN here]");
             code = "dc:identifier";
             insertRow(EName(code), code, content, "");
+        } else if (code == "dc:identifier-custom") {
+            QString content = tr("[Custom identifier here]");
+            code = "dc:identifier";
+            insertRow(EName(code), code, content, "");
         } else if ((code == "dc:date") || (code == "dcterms:created")) {
             QString content = QDate::currentDate().toString(Qt::ISODate);
             insertRow(EName(code), code, content, "");

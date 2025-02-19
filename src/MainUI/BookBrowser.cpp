@@ -86,14 +86,14 @@ BookBrowser::BookBrowser(QWidget *parent)
     m_OPFModel(new OPFModel(this)),
     m_ContextMenu(new QMenu(this)),
     m_FontObfuscationContextMenu(new QMenu(this)),
-    m_OpenWithContextMenu(new QMenu(this)),
+    m_OpenWithContextMenu(new QMenu(m_ContextMenu)),
     m_openWithMapper(new QSignalMapper(this)),
     m_LastContextMenuType(Resource::GenericResourceType),
     m_RenamedResource(NULL),
     m_MovedResource(NULL)
 {
     m_FontObfuscationContextMenu->setTitle(tr("Font Obfuscation"));
-    m_OpenWithContextMenu->setTitle(tr("Open With"));
+    m_OpenWithContextMenu->setTitle(tr("Open With") + "...");
     setWidget(m_TreeView);
     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     ReadSettings();
@@ -105,7 +105,10 @@ BookBrowser::BookBrowser(QWidget *parent)
     m_OpenWithContextMenu->addAction(m_OpenWithEditor2);
     m_OpenWithContextMenu->addAction(m_OpenWithEditor3);
     m_OpenWithContextMenu->addAction(m_OpenWithEditor4);
-    m_OpenWithContextMenu->addAction(m_OpenWith);
+    m_OpenWithContextMenu->addAction(m_OpenWithOtherApp);
+    m_OpenWithContextMenu->addSeparator();
+    m_OpenWithContextMenu->addAction(m_OpenWithClear);
+    
     setFocusPolicy(Qt::StrongFocus);
     setWindowTitle(tr("Book Browser"));
 }
@@ -1094,7 +1097,8 @@ void BookBrowser::SaveAsFiles()
     m_Book->GetFolderKeeper()->ResumeWatchingResources();
 }
 
-void BookBrowser::OpenWith()
+
+void BookBrowser::OpenWithOtherApp()
 {
     Resource *resource = GetCurrentResource();
 
@@ -1111,6 +1115,17 @@ void BookBrowser::OpenWith()
         }
     }
 }
+
+
+void BookBrowser::OpenWithClear()
+{
+    Resource *resource = GetCurrentResource();
+
+    if (resource) {
+        OpenExternally::clearEditorListForResourceType(resource->Type());
+    }    
+}
+
 
 void BookBrowser::OpenWithEditor(int slotnum) const
 {
@@ -2054,37 +2069,38 @@ void BookBrowser::SetupTreeView()
 void BookBrowser::CreateContextMenuActions()
 {
     KeyboardShortcutManager *sm = KeyboardShortcutManager::instance();
-    m_SelectAll               = new QAction(tr("Select All"),            this);
-    m_AddNewHTML              = new QAction(tr("Add Blank HTML File"),   this);
-    m_AddNewCSS               = new QAction(tr("Add Blank Stylesheet"),  this);
-    m_AddNewJS                = new QAction(tr("Add Blank Javascript"),  this);
-    m_AddNewSVG               = new QAction(tr("Add Blank SVG Image"),   this);
-    m_AddExisting             = new QAction(tr("Add Existing Files..."), this);
-    m_CopyHTML                = new QAction(tr("Add Copy"),              this);
-    m_CopyCSS                 = new QAction(tr("Add Copy"),              this);
-    m_Rename                  = new QAction(tr("Rename") + "...",        this);
-    m_RERename                = new QAction(tr("RegEx Rename") + "...",  this);
-    m_Move                    = new QAction(tr("Move") + "...",          this);
-    m_Delete                  = new QAction(tr("Delete") + "...",        this);
-    m_CoverImage              = new QAction(tr("Cover Image"),           this);
-    m_Merge                   = new QAction(tr("Merge"),                 this);
-    m_NoObfuscationMethod     = new QAction(tr("None"),                  this);
-    m_AdobesObfuscationMethod = new QAction(tr("Use Adobe's Method"),    this);
-    m_IdpfsObfuscationMethod  = new QAction(tr("Use IDPF's Method"),     this);
-    m_SortHTML                = new QAction(tr("Sort") + "...",          this);
-    m_RenumberTOC             = new QAction(tr("Renumber TOC Entries"),  this);
-    m_LinkStylesheets         = new QAction(tr("Link Stylesheets..."),   this);
-    m_LinkJavascripts         = new QAction(tr("Link Javascripts..."),   this);
-    m_AddSemantics            = new QAction(tr("Add Semantics..."),      this);
-    m_GetInfo                 = new QAction(tr("Get Info..."),           this);
-    m_ValidateWithW3C         = new QAction(tr("Validate with W3C"),     this);
-    m_OpenWith                = new QAction(tr("Open With") + "...",     this);
-    m_SaveAs                  = new QAction(tr("Save As") + "...",       this);
-    m_OpenWithEditor0          = new QAction("",                         this);
-    m_OpenWithEditor1          = new QAction("",                         this);
-    m_OpenWithEditor2          = new QAction("",                         this);
-    m_OpenWithEditor3          = new QAction("",                         this);
-    m_OpenWithEditor4          = new QAction("",                         this);
+    m_SelectAll               = new QAction(tr("Select All"),               this);
+    m_AddNewHTML              = new QAction(tr("Add Blank HTML File"),      this);
+    m_AddNewCSS               = new QAction(tr("Add Blank Stylesheet"),     this);
+    m_AddNewJS                = new QAction(tr("Add Blank Javascript"),     this);
+    m_AddNewSVG               = new QAction(tr("Add Blank SVG Image"),      this);
+    m_AddExisting             = new QAction(tr("Add Existing Files..."),    this);
+    m_CopyHTML                = new QAction(tr("Add Copy"),                 this);
+    m_CopyCSS                 = new QAction(tr("Add Copy"),                 this);
+    m_Rename                  = new QAction(tr("Rename") + "...",           this);
+    m_RERename                = new QAction(tr("RegEx Rename") + "...",     this);
+    m_Move                    = new QAction(tr("Move") + "...",             this);
+    m_Delete                  = new QAction(tr("Delete") + "...",           this);
+    m_CoverImage              = new QAction(tr("Cover Image"),              this);
+    m_Merge                   = new QAction(tr("Merge"),                    this);
+    m_NoObfuscationMethod     = new QAction(tr("None"),                     this);
+    m_AdobesObfuscationMethod = new QAction(tr("Use Adobe's Method"),       this);
+    m_IdpfsObfuscationMethod  = new QAction(tr("Use IDPF's Method"),        this);
+    m_SortHTML                = new QAction(tr("Sort") + "...",             this);
+    m_RenumberTOC             = new QAction(tr("Renumber TOC Entries"),     this);
+    m_LinkStylesheets         = new QAction(tr("Link Stylesheets..."),      this);
+    m_LinkJavascripts         = new QAction(tr("Link Javascripts..."),      this);
+    m_AddSemantics            = new QAction(tr("Add Semantics..."),         this);
+    m_GetInfo                 = new QAction(tr("Get Info..."),              this);
+    m_ValidateWithW3C         = new QAction(tr("Validate with W3C"),        this);
+    m_SaveAs                  = new QAction(tr("Save As") + "...",          this);
+    m_OpenWithEditor0         = new QAction("",                             this);
+    m_OpenWithEditor1         = new QAction("",                             this);
+    m_OpenWithEditor2         = new QAction("",                             this);
+    m_OpenWithEditor3         = new QAction("",                             this);
+    m_OpenWithEditor4         = new QAction("",                             this);
+    m_OpenWithOtherApp        = new QAction(tr("Other Application")+"...",  this);
+    m_OpenWithClear           = new QAction(tr("Clear Editor List"),        this);
     m_CoverImage             ->setCheckable(true);
     m_NoObfuscationMethod    ->setCheckable(true);
     m_AdobesObfuscationMethod->setCheckable(true);
@@ -2209,8 +2225,13 @@ bool BookBrowser::SuccessfullySetupContextMenu(const QPoint &point)
                 m_OpenWithEditor2->setData(QVINVALID);
                 m_OpenWithEditor3->setData(QVINVALID);
                 m_OpenWithEditor4->setData(QVINVALID);
-                m_OpenWith->setText(tr("Open With") + "...");
-                m_ContextMenu->addAction(m_OpenWith);
+                m_OpenWithClear->setEnabled(false);
+                m_OpenWithClear->setVisible(false);
+                m_OpenWithOtherApp->setVisible(item_count == 1);
+                m_OpenWithOtherApp->setEnabled(item_count == 1);
+                m_OpenWithOtherApp->setText(tr("Open With") + "...");
+                m_ContextMenu->addAction(m_OpenWithOtherApp);
+                                
             } else {
                 // clear previous open with action info
                 for (int k = 0; k < 5; k++) {
@@ -2244,11 +2265,15 @@ bool BookBrowser::SuccessfullySetupContextMenu(const QPoint &point)
                     }
                     i = i + 1;
                 }
-                m_OpenWith->setText(tr("Other Application") + "...");
+                m_OpenWithClear->setEnabled(item_count == 1);
+                m_OpenWithClear->setVisible(item_count == 1);
+                m_OpenWithOtherApp->setEnabled(item_count == 1);
+                m_OpenWithOtherApp->setVisible(item_count == 1);
+                m_OpenWithOtherApp->setText(tr("Other Application") + "...");
+                m_OpenWithContextMenu->setEnabled(item_count == 1);
                 m_ContextMenu->addMenu(m_OpenWithContextMenu);
+                
             }
-            m_OpenWith->setEnabled(item_count == 1);
-            m_OpenWithContextMenu->setEnabled(item_count == 1);
         }
 
         // Save As
@@ -2374,7 +2399,6 @@ void BookBrowser::ConnectSignalsToSlots()
     connect(m_GetInfo,                 SIGNAL(triggered()), this, SLOT(GetInfo()));
     connect(m_SaveAs,                  SIGNAL(triggered()), this, SLOT(SaveAs()));
     connect(m_ValidateWithW3C,         SIGNAL(triggered()), this, SLOT(ValidateStylesheetWithW3C()));
-    connect(m_OpenWith,                SIGNAL(triggered()), this, SLOT(OpenWith()));
     connect(m_OpenWithEditor0, SIGNAL(triggered()),  m_openWithMapper, SLOT(map()));
     m_openWithMapper->setMapping(m_OpenWithEditor0, 0);
     connect(m_OpenWithEditor1, SIGNAL(triggered()),  m_openWithMapper, SLOT(map()));
@@ -2386,6 +2410,8 @@ void BookBrowser::ConnectSignalsToSlots()
     connect(m_OpenWithEditor4, SIGNAL(triggered()),  m_openWithMapper, SLOT(map()));
     m_openWithMapper->setMapping(m_OpenWithEditor4, 4);
     connect(m_openWithMapper, SIGNAL(mappedInt(int)), this, SLOT(OpenWithEditor(int)));
+    connect(m_OpenWithClear, SIGNAL(triggered()), this, SLOT(OpenWithClear()));
+    connect(m_OpenWithOtherApp, SIGNAL(triggered()), this, SLOT(OpenWithOtherApp()));
     connect(m_AdobesObfuscationMethod, SIGNAL(triggered()), this, SLOT(AdobesObfuscationMethod()));
     connect(m_IdpfsObfuscationMethod,  SIGNAL(triggered()), this, SLOT(IdpfsObfuscationMethod()));
     connect(m_NoObfuscationMethod,     SIGNAL(triggered()), this, SLOT(NoObfuscationMethod()));
