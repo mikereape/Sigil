@@ -16,7 +16,7 @@ DefaultGroupName={#AppName}${BETA_BUILD}
 UninstallDisplayIcon={app}\{#AppName}.exe
 AppPublisher=Sigil-Ebook
 AppPublisherURL=https://github.com/Sigil-Ebook/Sigil
-WizardStyle=modern
+WizardStyle=modern dynamic
 WizardImageFile=${CMAKE_SOURCE_DIR}/installer/images/wif*.bmp
 WizardSmallImageFile=${CMAKE_SOURCE_DIR}/installer/images/wsif*.bmp
 WizardImageAlphaFormat=defined
@@ -82,3 +82,4 @@ Name: "{group}\Uninstall {#AppName}${BETA_BUILD}"; Filename: "{uninstallexe}"
 ; Optional desktop icon.
 ; commondesktop if admin, userdesktop if not
 Components: dicon; Name: "{autodesktop}\{#AppName}${BETA_BUILD}"; Filename: "{app}\{#AppName}.exe"
+
