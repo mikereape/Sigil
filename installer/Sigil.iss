@@ -18,7 +18,9 @@ AppPublisher=Sigil-Ebook
 AppPublisherURL=https://github.com/Sigil-Ebook/Sigil
 WizardStyle=modern dynamic
 WizardImageFile=${CMAKE_SOURCE_DIR}/installer/images/wif*.bmp
+WizardImageFileDynamicDark=${CMAKE_SOURCE_DIR}/installer/images/wif*.bmp
 WizardSmallImageFile=${CMAKE_SOURCE_DIR}/installer/images/wsif*.bmp
+WizardSmallImageFileDynamicDark=${CMAKE_SOURCE_DIR}/installer/images/wsif*.bmp
 WizardImageAlphaFormat=defined
 WizardImageStretch=no
 SetupIconFile=${CMAKE_SOURCE_DIR}/installer/images/setup.ico
@@ -82,4 +84,5 @@ Name: "{group}\Uninstall {#AppName}${BETA_BUILD}"; Filename: "{uninstallexe}"
 ; Optional desktop icon.
 ; commondesktop if admin, userdesktop if not
 Components: dicon; Name: "{autodesktop}\{#AppName}${BETA_BUILD}"; Filename: "{app}\{#AppName}.exe"
+
 
